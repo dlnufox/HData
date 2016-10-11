@@ -116,18 +116,47 @@ public class CliDriver {
             }
 
             final DefaultJobConfig jobConfig;
+            /**
+             * 如果有 -f /path/to/job.xml
+             */
             if (cmd.hasOption(XML_FILE_OPTION)) {
+                /**
+                 * 得到 -f 对应的路径
+                 */
                 String jobXmlPath = cmd.getOptionValue(XML_FILE_OPTION);
+                /**
+                 * 读取 job.xml 的配置信息，并通过xml内容得到readerConfig和writerConfig，并用它们实例化 jobConfig
+                 */
                 jobConfig = DefaultJobConfig.createFromXML(jobXmlPath);
                 Properties vars = new Properties();
+                /**
+                 * 读取 -D 开头的参数
+                 * -D 参数有什么用呢？
+                 * 最高级的参数？
+                 */
                 cliDriver.putOptionValues(vars, cmd.getOptionValues(HDATA_VARS_OPTION));
 
+                /**
+                 * 获取readerConfig
+                 */
                 final PluginConfig readerConfig = jobConfig.getReaderConfig();
+                /**
+                 * 获取writerConfig
+                 */
                 final PluginConfig writerConfig = jobConfig.getWriterConfig();
 
+                /**
+                 * 用 vars 的参数规制 readerConfig中的对应参数
+                 */
                 cliDriver.replaceConfigVars(readerConfig, vars);
+                /**
+                 * 用 vars 的参数规制 writerConfig中的对应参数
+                 */
                 cliDriver.replaceConfigVars(writerConfig, vars);
             } else {
+                /**
+                 * --reader 和 --writer 必须同时存在
+                 */
                 if (!cmd.hasOption(READER_OPTION) || !cmd.hasOption(WRITER_OPTION)) {
                     throw new HDataException("Option --reader and --writer should be both given if -f option not exists.");
                 }
@@ -136,9 +165,15 @@ public class CliDriver {
                 String writerName = cmd.getOptionValue(WRITER_OPTION);
 
                 PluginConfig readerConfig = new PluginConfig();
+                /**
+                 * 读取以 -R 为开头的参数及值，并对应插入readerConfig中
+                 */
                 cliDriver.putOptionValues(readerConfig, cmd.getOptionValues(READER_VARS_OPTION));
 
                 PluginConfig writerConfig = new PluginConfig();
+                /**
+                 * 读取以 -W 为开头的参数及值，并对应插入writerConfig中
+                 */
                 cliDriver.putOptionValues(writerConfig, cmd.getOptionValues(WRITER_VARS_OPTION));
 
                 jobConfig = new DefaultJobConfig(readerName, readerConfig, writerName, writerConfig);
