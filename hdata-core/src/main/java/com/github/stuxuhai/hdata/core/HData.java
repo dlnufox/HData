@@ -67,7 +67,7 @@ public class HData {
             LOGGER.info("Executing splitter for reader.");
 
             ExecutorService es = Executors.newCachedThreadPool();
-            Callable<List<PluginConfig>> callable = new Callable<List<PluginConfig>>() {
+            Callable<List<PluginConfig>> callable = new Callable<List<PluginConfig>>() {  //根据List<PluginConfig>>来决定reader的并发度
                 @Override
                 public List<PluginConfig> call() throws Exception {
                     Thread.currentThread().setContextClassLoader(splitter.getClass().getClassLoader());
@@ -221,7 +221,7 @@ public class HData {
         } else {
             producerType = ProducerType.MULTI;
         }
-        Disruptor<RecordEvent> disruptor = new Disruptor<RecordEvent>(RecordEvent.FACTORY, bufferSize, Executors.defaultThreadFactory(), producerType,
+        Disruptor<RecordEvent> disruptor = new Disruptor<>(RecordEvent.FACTORY, bufferSize, Executors.defaultThreadFactory(), producerType,
                 waitStrategy);
         DefaultStorage storage = new DefaultStorage(disruptor, handlers, context);
         return storage;

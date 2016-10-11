@@ -23,6 +23,9 @@ public class DefaultStorage implements Storage {
     public DefaultStorage(Disruptor<RecordEvent> disruptor, RecordWorkHandler[] handlers, JobContext context) {
         this.disruptor = disruptor;
         disruptor.setDefaultExceptionHandler(new RecordEventExceptionHandler(disruptor, context));
+        /**
+         * 启动消费进程
+         */
         disruptor.handleEventsWithWorkerPool(handlers);
         ringBuffer = disruptor.start();
     }

@@ -23,6 +23,7 @@ public class RecordWorkHandler implements WorkHandler<RecordEvent> {
 
     @Override
     public void onEvent(RecordEvent event) {
+        // preparing for writing
         if (!writerPrepared) {
             context.declareOutputFields();
             Thread.currentThread().setContextClassLoader(writer.getClass().getClassLoader());
