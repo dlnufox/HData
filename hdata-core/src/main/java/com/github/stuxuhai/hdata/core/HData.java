@@ -43,8 +43,15 @@ public class HData {
         final PluginConfig readerConfig = jobConfig.getReaderConfig();
         final PluginConfig writerConfig = jobConfig.getWriterConfig();
 
+        /**
+         * 读数的包名，如 jdbc
+         */
         String readerName = jobConfig.getReaderName();
+        /**
+         * 写入的包名，如 hive
+         */
         String writerName = jobConfig.getWriterName();
+
         LOGGER.info("Reader: {}, Writer: {}", readerName, writerName);
 
         final JobContext context = new JobContext();
@@ -221,7 +228,7 @@ public class HData {
         } else {
             producerType = ProducerType.MULTI;
         }
-        Disruptor<RecordEvent> disruptor = new Disruptor<>(RecordEvent.FACTORY, bufferSize, Executors.defaultThreadFactory(), producerType,
+        Disruptor<RecordEvent> disruptor = new Disruptor<RecordEvent>(RecordEvent.FACTORY, bufferSize, Executors.defaultThreadFactory(), producerType,
                 waitStrategy);
         DefaultStorage storage = new DefaultStorage(disruptor, handlers, context);
         return storage;
