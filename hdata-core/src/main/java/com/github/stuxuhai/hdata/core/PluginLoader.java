@@ -14,7 +14,14 @@ import com.google.common.base.Throwables;
 
 public class PluginLoader {
 
+    /**
+     * 记录 reader 及其对应的 class 名称
+     */
     private static Map<String, String> readerMap;
+
+    /**
+     * 记录 writer 及其对应的 class 名称
+     */
     private static Map<String, String> writerMap;
 
     public static String getReaderClassName(String name) {

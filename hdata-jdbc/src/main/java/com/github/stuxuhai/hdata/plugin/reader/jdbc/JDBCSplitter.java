@@ -74,34 +74,63 @@ public class JDBCSplitter extends Splitter {
 	@Override
 	public List<PluginConfig> split(JobConfig jobConfig) {
 		PluginConfig readerConfig = jobConfig.getReaderConfig();
+
+		/**
+		 * 数据库驱动类
+		 */
 		String driver = readerConfig.getString(JDBCReaderProperties.DRIVER);
 		Preconditions.checkNotNull(driver, "JDBC reader required property: driver");
 
+		/**
+		 * 数据库连接地址
+		 */
 		String url = readerConfig.getString(JDBCReaderProperties.URL);
 		Preconditions.checkNotNull(url, "JDBC reader required property: url");
 
+		/**
+		 * 数据库连接用户
+		 */
 		String username = readerConfig.getString(JDBCReaderProperties.USERNAME);
+
+		/**
+		 * 数据库连接密码
+		 */
 		String password = readerConfig.getString(JDBCReaderProperties.PASSWORD);
+
+		/**
+		 * 并发度
+		 */
 		int parallelism = readerConfig.getParallelism();
+
+		/**
+		 * 每次最大的读取数量 ？
+		 */
 		int maxFetchSize = readerConfig.getInt(JDBCReaderProperties.MAX_SIZE_PER_FETCH, 0);
 
 		List<String> sqlList = new ArrayList<String>();
 
+		/**
+		 * 如果配置属性中有 sql
+		 */
 		if (readerConfig.containsKey(JDBCReaderProperties.SQL)) {
 			if (parallelism > 1) {
 				checkIfContainsConditionKey(readerConfig.getString(JDBCReaderProperties.SQL),
 						"Reader must contains key word \"" + CONDITIONS + "\" in sql property when parallelism > 1.");
 			}
 			sqlList.add(readerConfig.getString(JDBCReaderProperties.SQL));
-		} else {
+		} else { // 没有配置 sql
+			/**
+			 * 数据源表名
+			 */
 			String table = readerConfig.getString(JDBCReaderProperties.TABLE);
-
 			Preconditions.checkNotNull(table, "JDBC reader required property: table");
-
 			if (!isMatch(table)) {
 				throw new HDataException("table:" + table + " 格式错误");
 			}
 
+			/**
+			 * 分库分表
+			 */
 			List<String> tableList = getRange(table);
 
 			for (String tableName : tableList) {
