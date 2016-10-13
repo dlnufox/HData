@@ -65,12 +65,20 @@ public class DefaultJobConfig extends JobConfig {
         }
     }
 
+    /**
+     * 获取 reader 实例(AbstractPlugin)
+     * @return
+     */
     @Override
     public Splitter newSplitter() {
         Reader reader = newReader();
         return reader.newSplitter();
     }
 
+    /**
+     * 获取 writer 实例(AbstractPlugin)
+     * @return
+     */
     @Override
     public Writer newWriter() {
         String writerClassName = PluginLoader.getWriterClassName(writerName);
