@@ -69,7 +69,12 @@ public class HData {
         long sleepMillis = engineConfig.getLong(HDataConfigConstants.HDATA_SLEEP_MILLIS, Constants.DEFAULT_HDATA_SLEEP_MILLIS);
 
         List<PluginConfig> readerConfigList = null;
+
+        /**
+         * 获取对应的Reader
+         */
         final Splitter splitter = jobConfig.newSplitter();
+
         if (splitter != null) {
             LOGGER.info("Executing splitter for reader.");
 
