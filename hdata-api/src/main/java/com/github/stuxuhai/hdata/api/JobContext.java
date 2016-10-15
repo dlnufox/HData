@@ -119,6 +119,9 @@ public class JobContext {
 		this.jobStatus = jobStatus;
 	}
 
+	/**
+	 * 这是什么意思？
+	 */
 	public void declareOutputFields() {
 		for (Reader reader : readers) {
 			if (getFields() == null) {

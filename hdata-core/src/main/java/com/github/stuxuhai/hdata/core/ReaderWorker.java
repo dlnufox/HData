@@ -14,12 +14,13 @@ public class ReaderWorker implements Callable<Integer> {
     private final PluginConfig readerConfig;
 
     /**
-     * 用于完成读取数及发布 disruptor 事件的线程
-     * 一个 reader 对应一个线程
+     * 实例化用于完成读取数及发布 disruptor 事件的线程
+     * Reader 与 ReaderWorker 一一对应
+     * 参数 rc 在 reader.execute() 中使用，通过 RecordCollector.send() 向 disruptor 发布事件
      * @param reader
      * @param context
      * @param readerConfig
-     * @param rc
+     * @param rc            该参数在 reader.execute() 中使用，通过 RecordCollector.send() 向 disruptor 发布事件
      */
     public ReaderWorker(Reader reader, JobContext context, PluginConfig readerConfig, DefaultRecordCollector rc) {
         this.reader = reader;
@@ -39,7 +40,8 @@ public class ReaderWorker implements Callable<Integer> {
         reader.prepare(context, readerConfig);
 
         /**
-         * 执行各个类型 reader 中的 execute 方法读取数据，再通过 recordCollector 向事件队列发布事件
+         * 执行各个类型 reader 中的 execute 方法读取数据
+         * 再通过 recordCollector.send() 向事件队列发布事件
          */
         reader.execute(rc);
         reader.close();

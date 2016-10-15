@@ -35,6 +35,10 @@ public class RecordWorkHandler implements WorkHandler<RecordEvent> {
     public void onEvent(RecordEvent event) {
         // preparing for writing
         if (!writerPrepared) {
+
+            /**
+             * 声名抽数的字段
+             */
             context.declareOutputFields();
             Thread.currentThread().setContextClassLoader(writer.getClass().getClassLoader());
             writer.prepare(context, writerConfig);

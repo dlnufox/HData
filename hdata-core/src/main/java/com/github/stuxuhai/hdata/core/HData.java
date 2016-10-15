@@ -143,21 +143,31 @@ public class HData {
                 BlockingWaitStrategy.class.getName());
 
         /**
-         * 初始化一个事件处理器，把 WriterHandler 实例传入，用于注册到事件队列 disruptor 中
+         * 初始化一个事件处理器
+         * 其中 handlers 都是 Disruptor 的 WorkerHandler 类的实例，handlers 用于注册到事件队列 disruptor
          */
         DefaultStorage storage = createStorage(bufferSize, WaitStrategyName, readers.length, handlers, context);
+
         context.setStorage(storage);
 
         LOGGER.info("Transfer data from reader to writer...");
 
+        /**
+         * 定义数据处理器，并作为 ReaderWorker 的参数
+         * 其中参数 storage 中包含一个所有读线程共用的 disruptor
+         */
         DefaultRecordCollector rc = new DefaultRecordCollector(storage, metric, readerConfig.getFlowLimit());
         ExecutorService es = Executors.newFixedThreadPool(readers.length);
         CompletionService<Integer> cs = new ExecutorCompletionService<Integer>(es);
         for (int i = 0, len = readerConfigList.size(); i < len; i++) {
             /**
-             * 实例化读数线程，所有读线程共用一个 disruptor
+             * 实例化读数线程，每个线程都使用同一个 DefaultRecordCollector 实例 rc，以达到所有读线程共用一个 disruptor 目的
              */
             ReaderWorker readerWorker = new ReaderWorker(readers[i], context, readerConfigList.get(i), rc);
+
+            /**
+             * 提交抽数线程到执行队列中
+             */
             cs.submit(readerWorker);
         }
         es.shutdown();
