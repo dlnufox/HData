@@ -152,6 +152,10 @@ public class JDBCReader extends Reader {
 						}
 					}
 				}
+
+				/**
+				 * 发布事件
+				 */
 				recordCollector.send(r);
 				rows++;
 			}

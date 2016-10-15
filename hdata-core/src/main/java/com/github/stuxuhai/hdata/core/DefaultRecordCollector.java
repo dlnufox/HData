@@ -30,6 +30,9 @@ public class DefaultRecordCollector implements RecordCollector {
         LOGGER.info("The flow limit is {} bytes/s.", this.flowLimit);
     }
 
+    /**
+     * 发布一个事件，触发事件处理机制
+     */
     @Override
     public void send(Record record) {
         // 限速
@@ -48,6 +51,9 @@ public class DefaultRecordCollector implements RecordCollector {
             }
         }
 
+        /**
+         * 发布一个事件，触发事件处理机制
+         */
         storage.put(record);
         metric.getReadCount().incrementAndGet();
 

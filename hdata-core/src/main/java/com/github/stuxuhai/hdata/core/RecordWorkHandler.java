@@ -14,6 +14,12 @@ public class RecordWorkHandler implements WorkHandler<RecordEvent> {
     private boolean writerPrepared;
     private final Metric metric;
 
+    /**
+     * 初始化数据写入 Handler 实例
+     * @param writer
+     * @param context
+     * @param writerConfig
+     */
     public RecordWorkHandler(Writer writer, JobContext context, PluginConfig writerConfig) {
         this.writer = writer;
         this.context = context;
@@ -21,6 +27,10 @@ public class RecordWorkHandler implements WorkHandler<RecordEvent> {
         this.metric = context.getMetric();
     }
 
+    /**
+     * disruptor 的事件回调方法，当有事件触发时自动调用 onEvent 方法
+     * @param event
+     */
     @Override
     public void onEvent(RecordEvent event) {
         // preparing for writing
@@ -34,6 +44,9 @@ public class RecordWorkHandler implements WorkHandler<RecordEvent> {
             }
         }
 
+        /**
+         * 调用自定义的数据处理过程，写入对应的数据库，包括文件系统、console等
+         */
         writer.execute(event.getRecord());
         metric.getWriteCount().incrementAndGet();
     }

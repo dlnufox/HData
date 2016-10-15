@@ -114,6 +114,9 @@ public class HData {
 
         context.setReaders(readers);
 
+        /**
+         * writer 的并发度
+         */
         int writerParallelism = writerConfig.getParallelism();
         LOGGER.info("Reader parallelism: {}, Writer parallelism: {}", readers.length, writerParallelism);
 
@@ -121,14 +124,27 @@ public class HData {
         final RecordWorkHandler[] handlers = new RecordWorkHandler[writerParallelism];
         for (int i = 0; i < writerParallelism; i++) {
             writers[i] = jobConfig.newWriter();
+            /**
+             * 初始化数据写入 handler ，一个 writer 对应一个 handler
+             */
             handlers[i] = new RecordWorkHandler(writers[i], context, writerConfig);
         }
         context.setWriters(writers);
 
+        /**
+         * disruptor 的队列长度
+         */
         int bufferSize = engineConfig.getInt(HDataConfigConstants.STORAGE_BUFFER_SIZE, 1024);
+
+        /**
+         * disruptor 的等待策略
+         */
         String WaitStrategyName = engineConfig.getString(HDataConfigConstants.HDATA_STORAGE_DISRUPTOR_WAIT_STRATEGY,
                 BlockingWaitStrategy.class.getName());
 
+        /**
+         * 初始化一个事件处理器，把 WriterHandler 实例传入，用于注册到事件队列 disruptor 中
+         */
         DefaultStorage storage = createStorage(bufferSize, WaitStrategyName, readers.length, handlers, context);
         context.setStorage(storage);
 
@@ -138,6 +154,9 @@ public class HData {
         ExecutorService es = Executors.newFixedThreadPool(readers.length);
         CompletionService<Integer> cs = new ExecutorCompletionService<Integer>(es);
         for (int i = 0, len = readerConfigList.size(); i < len; i++) {
+            /**
+             * 实例化读数线程，所有读线程共用一个 disruptor
+             */
             ReaderWorker readerWorker = new ReaderWorker(readers[i], context, readerConfigList.get(i), rc);
             cs.submit(readerWorker);
         }
