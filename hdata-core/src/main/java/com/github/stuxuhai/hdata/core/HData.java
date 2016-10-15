@@ -103,7 +103,7 @@ public class HData {
             if (readerConfig.getParallelism() > 1) {
                 LOGGER.warn("Can not find splitter, reader parallelism is set to 1.");
             }
-            readerConfigList = new ArrayList<PluginConfig>();
+            readerConfigList = new ArrayList<>();
             readerConfigList.add(readerConfig);
         }
 
@@ -121,6 +121,10 @@ public class HData {
         LOGGER.info("Reader parallelism: {}, Writer parallelism: {}", readers.length, writerParallelism);
 
         final Writer[] writers = new Writer[writerParallelism];
+
+        /**
+         * 实例化事件 handlers
+         */
         final RecordWorkHandler[] handlers = new RecordWorkHandler[writerParallelism];
         for (int i = 0; i < writerParallelism; i++) {
             writers[i] = jobConfig.newWriter();
@@ -157,8 +161,11 @@ public class HData {
          * 其中参数 storage 中包含一个所有读线程共用的 disruptor
          */
         DefaultRecordCollector rc = new DefaultRecordCollector(storage, metric, readerConfig.getFlowLimit());
+
+
         ExecutorService es = Executors.newFixedThreadPool(readers.length);
-        CompletionService<Integer> cs = new ExecutorCompletionService<Integer>(es);
+        CompletionService<Integer> cs = new ExecutorCompletionService<>(es);
+
         for (int i = 0, len = readerConfigList.size(); i < len; i++) {
             /**
              * 实例化读数线程，每个线程都使用同一个 DefaultRecordCollector 实例 rc，以达到所有读线程共用一个 disruptor 目的

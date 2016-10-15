@@ -63,6 +63,10 @@ public class DefaultStorage implements Storage {
         }
     }
 
+    /**
+     * 用于检测所有数据是否都已写入数据库
+     * @return
+     */
     @Override
     public boolean isEmpty() {
         return ringBuffer.remainingCapacity() == ringBuffer.getBufferSize();
