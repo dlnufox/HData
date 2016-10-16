@@ -60,6 +60,7 @@ public class HBaseReader extends Reader {
 				"HBase reader required property: columns");
 		columns = readerConfig.getString(HBaseReaderProperties.COLUMNS).split("\\s*,\\s*");
 		for (int i = 0, len = columns.length; i < len; i++) {
+			// rowkeyIndex 有不是 0 的时候吗？
 			if (ROWKEY.equalsIgnoreCase(columns[i])) {
 				rowkeyIndex = i;
 				break;
@@ -86,6 +87,7 @@ public class HBaseReader extends Reader {
 
 		for (int i = 0, len = columns.length; i < len; i++) {
 			if (i != rowkeyIndex) {
+				// columns[i]="cf:start_ip"
 				String[] column = columns[i].split(":");
 				scan.addColumn(Bytes.toBytes(column[0]), Bytes.toBytes(column[1]));
 			}
@@ -96,13 +98,18 @@ public class HBaseReader extends Reader {
 			for (Result result : results) {
 				Record record = new DefaultRecord(fields.size());
 				for (int i = 0, len = fields.size(); i < len; i++) {
+					// 如果是 Rowkey 的下标
 					if (i == rowkeyIndex) {
+                        // 所有都是 String 类型吗？
 						record.add(Bytes.toString(result.getRow()));
 					} else {
 						String[] column = columns[i].split(":");
+						// 所有都是 String 类型吗？
+						// getValue 方法通过 cf 和 column 得到对应的值，转换成 String 后写入 record 中
 						record.add(Bytes.toString(result.getValue(Bytes.toBytes(column[0]), Bytes.toBytes(column[1]))));
 					}
 				}
+				// 向 Disruptor 发布事件，触发事件处理 handler ，即写入数据库
 				recordCollector.send(record);
 			}
 
@@ -116,6 +123,9 @@ public class HBaseReader extends Reader {
 
 	@Override
 	public void declareOutputFields(OutputFieldsDeclarer declarer) {
+		/**
+		 * 用 fields 去设置 OutputFieldsDeclarer 的 fields
+		 */
 		declarer.declare(fields);
 	}
 

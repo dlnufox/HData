@@ -63,6 +63,8 @@ public class HBaseSplitter extends Splitter {
 				Preconditions.checkNotNull(table, "HBase reader required property: table");
 				Pair<byte[][], byte[][]> startEndKeysPair = regionLocator.getStartEndKeys();
 				table.close();
+
+				// 根据 rowkey 区间切分抽数线程
 				List<Pair<byte[], byte[]>> selectedPairList = new ArrayList<Pair<byte[], byte[]>>();
 				byte[][] startKeys = startEndKeysPair.getFirst();
 				byte[][] endKeys = startEndKeysPair.getSecond();
@@ -118,6 +120,9 @@ public class HBaseSplitter extends Splitter {
 					parallelism = selectedPairList.size();
 				}
 
+				/**
+				 * HBase 抽数并行度的切分的关键
+				 */
 				double step = (double) selectedPairList.size() / parallelism;
 				for (int i = 0; i < parallelism; i++) {
 					List<Pair<byte[], byte[]>> splitedPairs = new ArrayList<Pair<byte[], byte[]>>();

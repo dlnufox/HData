@@ -7,7 +7,7 @@ public abstract class Reader extends AbstractPlugin {
 
 	/**
 	 * execute()方法内部必须定义抽数的行为
-	 * 在被 ReaderWorker 调用时读取数据，并通过 RecordCollector 实例向 Disruptor 发布事件
+	 * 在被 ReaderWorker 调用时读取数据，并通过 RecordCollector 实例的 send 方法向 Disruptor 发布事件
 	 * @param recordCollector
      */
 	public void execute(RecordCollector recordCollector) {
@@ -21,6 +21,10 @@ public abstract class Reader extends AbstractPlugin {
 	 * @param declarer
      */
 	public void declareOutputFields(OutputFieldsDeclarer declarer) {
+		/**
+		 * 子类实现中，用 this.fields 去设置 OutputFieldsDeclarer 的 fields
+		 * declarer.declare(this.fields);
+		 */
 	}
 
 	public abstract Splitter newSplitter();
