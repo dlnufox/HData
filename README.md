@@ -340,3 +340,11 @@ http|http接口中的offset参数|
 kafka|无。使用High-Level Consumer API|
 csv|文件数量|
 excel|无|
+
+
+#### 【未解决的疑问】
+
+未解决的疑问     | 详细描述   |
+-----------| ----- |
+fields设置|1、怎么设置抽数、写数的fields? 2、抽数、写数设置是否一样？|
+Executor的作用|1、为什么要用Executor？|

@@ -33,6 +33,15 @@ import com.lmax.disruptor.WaitStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 
+/**
+ *【HData设计】
+ * 配置文件：XML格式，配置Reader、Writer的参数（如：并行度、数据库连接地址、账号、密码等）；
+ * Reader：数据读取模块，负责从数据源读取数据并写入RingBuffer；
+ * Splitter：根据配置文件中Reader的并行度构造相应数据的ReaderConfig对象供Reader使用，以实现数据的并行读取；
+ * RingBuffer：来自Disruptor的高性能环形数据缓冲区，基于事件监听模式的异步实现，采用无锁方式针对CPU缓存优化，在此用于Reader和Writer的数据交换；
+ * Writer：数据写入模块，负责从RingBuffer中读取数据并写入目标数据源。
+ * HData框架通过配置读取解析、RingBuffer 缓冲区、线程池封装等技术，统一处理了数据传输中的基本问题，并提供Reader、Splitter、Writer插件接口，基于此可以方便地开发出各种插件，以满足各种数据源访问的需求。
+ */
 public class HData {
 
     private int exitCode = 0;
@@ -106,7 +115,7 @@ public class HData {
             if (readerConfig.getParallelism() > 1) {
                 LOGGER.warn("Can not find splitter, reader parallelism is set to 1.");
             }
-            readerConfigList = new ArrayList<PluginConfig>();
+            readerConfigList = new ArrayList<>();
             readerConfigList.add(readerConfig);
         }
 
@@ -117,31 +126,67 @@ public class HData {
 
         context.setReaders(readers);
 
+        /**
+         * writer 的并发度
+         */
         int writerParallelism = writerConfig.getParallelism();
         LOGGER.info("Reader parallelism: {}, Writer parallelism: {}", readers.length, writerParallelism);
 
         final Writer[] writers = new Writer[writerParallelism];
+
+        /**
+         * 实例化事件 handlers
+         */
         final RecordWorkHandler[] handlers = new RecordWorkHandler[writerParallelism];
         for (int i = 0; i < writerParallelism; i++) {
             writers[i] = jobConfig.newWriter();
+            /**
+             * 初始化数据写入 handler ，一个 writer 对应一个 handler
+             */
             handlers[i] = new RecordWorkHandler(writers[i], context, writerConfig);
         }
         context.setWriters(writers);
 
+        /**
+         * disruptor 的队列长度
+         */
         int bufferSize = engineConfig.getInt(HDataConfigConstants.STORAGE_BUFFER_SIZE, 1024);
+
+        /**
+         * disruptor 的等待策略
+         */
         String WaitStrategyName = engineConfig.getString(HDataConfigConstants.HDATA_STORAGE_DISRUPTOR_WAIT_STRATEGY,
                 BlockingWaitStrategy.class.getName());
 
+        /**
+         * 初始化一个事件处理器
+         * 其中 handlers 都是 Disruptor 的 WorkerHandler 类的实例，handlers 用于注册到事件队列 disruptor
+         */
         DefaultStorage storage = createStorage(bufferSize, WaitStrategyName, readers.length, handlers, context);
+
         context.setStorage(storage);
 
         LOGGER.info("Transfer data from reader to writer...");
 
+        /**
+         * 定义数据处理器，并作为 ReaderWorker 的参数
+         * 其中参数 storage 中包含一个所有读线程共用的 disruptor
+         */
         DefaultRecordCollector rc = new DefaultRecordCollector(storage, metric, readerConfig.getFlowLimit());
+
+
         ExecutorService es = Executors.newFixedThreadPool(readers.length);
-        CompletionService<Integer> cs = new ExecutorCompletionService<Integer>(es);
+        CompletionService<Integer> cs = new ExecutorCompletionService<>(es);
+
         for (int i = 0, len = readerConfigList.size(); i < len; i++) {
+            /**
+             * 实例化读数线程，每个线程都使用同一个 DefaultRecordCollector 实例 rc，以达到所有读线程共用一个 disruptor 目的
+             */
             ReaderWorker readerWorker = new ReaderWorker(readers[i], context, readerConfigList.get(i), rc);
+
+            /**
+             * 提交抽数线程到执行队列中
+             */
             cs.submit(readerWorker);
         }
         es.shutdown();

@@ -152,6 +152,10 @@ public class JDBCReader extends Reader {
 						}
 					}
 				}
+
+				/**
+				 * 发布事件
+				 */
 				recordCollector.send(r);
 				rows++;
 			}
@@ -171,6 +175,10 @@ public class JDBCReader extends Reader {
 		DbUtils.closeQuietly(connection);
 	}
 
+	/**
+	 * 为什么要不断更新 declarer 中的 fields？
+	 * @param declarer
+     */
 	@Override
 	public void declareOutputFields(OutputFieldsDeclarer declarer) {
 		declarer.declare(fields);

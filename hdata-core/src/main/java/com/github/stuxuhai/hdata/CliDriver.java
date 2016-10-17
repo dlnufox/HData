@@ -179,6 +179,9 @@ public class CliDriver {
                 jobConfig = new DefaultJobConfig(readerName, readerConfig, writerName, writerConfig);
             }
 
+            /**
+             * 实例化 HData，并开始抽数过程
+             */
             HData hData = new HData();
             hData.start(jobConfig);
         } catch (ParseException e) {
