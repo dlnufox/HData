@@ -40,7 +40,9 @@ import com.lmax.disruptor.dsl.ProducerType;
  * Splitter：根据配置文件中Reader的并行度构造相应数据的ReaderConfig对象供Reader使用，以实现数据的并行读取；
  * RingBuffer：来自Disruptor的高性能环形数据缓冲区，基于事件监听模式的异步实现，采用无锁方式针对CPU缓存优化，在此用于Reader和Writer的数据交换；
  * Writer：数据写入模块，负责从RingBuffer中读取数据并写入目标数据源。
- * HData框架通过配置读取解析、RingBuffer 缓冲区、线程池封装等技术，统一处理了数据传输中的基本问题，并提供Reader、Splitter、Writer插件接口，基于此可以方便地开发出各种插件，以满足各种数据源访问的需求。
+ *
+ * HData框架通过配置读取解析、RingBuffer 缓冲区、线程池封装等技术，统一处理了数据传输中的基本问题，并提供Reader、Splitter、Writer插件接口，
+ * 基于此可以方便地开发出各种插件，以满足各种数据源访问的需求。
  */
 public class HData {
 
