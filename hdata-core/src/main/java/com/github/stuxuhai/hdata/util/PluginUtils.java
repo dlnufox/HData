@@ -53,11 +53,6 @@ public class PluginUtils {
 
     public static Class<?> loadClass(String pluginName, String className) throws ClassNotFoundException, MalformedURLException {
         /**
-         * 根据插件名称，获取插件及其所有依赖包的绝对路径
-         */
-        List<URL> list = listFileByPluginName(pluginName);
-
-        /**
          * 根据插件名称，从缓存中获取对应的 ClassLoader，以便于隔离依赖，防止依赖冲突
          */
         PluginClassLoader classLoader = cache.get(pluginName);
@@ -66,6 +61,10 @@ public class PluginUtils {
          * 如果缓存中没有对应的 ClassLoader，则用之前得到的插件依赖，生成一个并放在缓存中，方便后续使用
          */
         if (classLoader == null) {
+            /**
+             * 根据插件名称，获取插件及其所有依赖包的绝对路径
+             */
+            List<URL> list = listFileByPluginName(pluginName);
             classLoader = new PluginClassLoader(list.toArray(new URL[list.size()]), null);
             cache.put(pluginName, classLoader);
         }
@@ -88,5 +87,12 @@ public class PluginUtils {
 
     public static void main(String [] args) {
         System.out.println("/home/xiaochaihu/projects/tools/hdata/lib/hdata-core-0.2.8.jar".replaceAll("/lib/.*\\.jar", ""));
+        try {
+            System.out.println(PluginUtils.class.newInstance());
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
     }
 }

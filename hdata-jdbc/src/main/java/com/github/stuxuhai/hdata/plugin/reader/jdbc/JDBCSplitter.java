@@ -219,12 +219,13 @@ public class JDBCSplitter extends Splitter {
 						parallelism);
 			}
 
-			List<PluginConfig> readerConfigList = new ArrayList<PluginConfig>();
+			List<PluginConfig> readerConfigList = new ArrayList<>();
 			for (int i = 0; i < sqlList.size(); i++) {
 				sqlList.set(i, sqlList.get(i).replace(CONDITIONS, "(1 = 1)"));
 			}
 
 			readerConfigList.add(readerConfig);
+			LOG.info("length of readerConfigList: " + readerConfigList.size());
 			return readerConfigList;
 		}
 	}

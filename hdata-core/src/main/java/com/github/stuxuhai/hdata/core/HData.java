@@ -82,6 +82,9 @@ public class HData {
             Callable<List<PluginConfig>> callable = new Callable<List<PluginConfig>>() {  //根据List<PluginConfig>>来决定reader的并发度
                 @Override
                 public List<PluginConfig> call() throws Exception {
+                    /**
+                     * 把 reader 的类加载器设置为当前线程的上下文的ClassLoader
+                     */
                     Thread.currentThread().setContextClassLoader(splitter.getClass().getClassLoader());
                     return splitter.split(jobConfig);
                 }
