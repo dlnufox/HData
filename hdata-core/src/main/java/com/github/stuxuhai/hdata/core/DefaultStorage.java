@@ -37,8 +37,12 @@ public class DefaultStorage implements Storage {
          * 向 disruptor 中注册事件处理方法
          */
         disruptor.handleEventsWithWorkerPool(handlers);
+
         /**
-         * 启动消费进程
+         * 启动消费线程
+         * 该方法内部执行 consumerInfo.start(executor)
+         * 进而，调用 executor.execute(processor)
+         * 最终，processor.run()将会在 executor.execute() 方法中被调用，从而执行 onEvent() 处理 Disruptor 的事件
          */
         ringBuffer = disruptor.start();
     }

@@ -6,10 +6,20 @@ import com.github.stuxuhai.hdata.api.PluginConfig;
 import com.github.stuxuhai.hdata.api.Writer;
 import com.lmax.disruptor.WorkHandler;
 
+/**
+ * 每个 Handler 对应一个 Processor 实例
+ */
 public class RecordWorkHandler implements WorkHandler<RecordEvent> {
 
+    /**
+     * 每个 Handler 对应一个 writer
+     */
     private final Writer writer;
     private final JobContext context;
+
+    /**
+     * 每个 Handler 对应一份 writerConfig
+     */
     private final PluginConfig writerConfig;
     private boolean writerPrepared;
     private final Metric metric;
@@ -41,6 +51,10 @@ public class RecordWorkHandler implements WorkHandler<RecordEvent> {
              */
             context.declareOutputFields();
             Thread.currentThread().setContextClassLoader(writer.getClass().getClassLoader());
+
+            /**
+             * 把 writerConfig 作为参数传递给 writer
+             */
             writer.prepare(context, writerConfig);
             writerPrepared = true;
             if (metric.getWriterStartTime() == 0) {
