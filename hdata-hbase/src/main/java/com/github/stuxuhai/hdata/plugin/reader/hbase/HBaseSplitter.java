@@ -82,6 +82,9 @@ public class HBaseSplitter extends Splitter {
 				 * This is mainly useful for the MapReduce integration.
 				 * return : Pair<[startKey1, startKey2, startKey3],
 				 * 				 [endKey1  , endKey2  , endKey3  ]>
+				 *
+				 * 如果任务分解后，region 个数发生了变化应该怎么处理？
+				 * 数据结果是否还是正确的？
 				 */
 				Pair<byte[][], byte[][]> startEndKeysPair = regionLocator.getStartEndKeys();
 				table.close();

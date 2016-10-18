@@ -8,9 +8,17 @@ import com.github.stuxuhai.hdata.api.Reader;
 
 public class ReaderWorker implements Callable<Integer> {
 
-    private final Reader reader;
     private final JobContext context;
     private final DefaultRecordCollector rc;
+
+    /**
+     * 每个 ReaderWorker 对应一份 reader
+     */
+    private final Reader reader;
+
+    /**
+     * 每个 ReaderWorker 对应一份 readerConfig，当 ReaderWorker 调用 reader.prepare() 时作为参数传递给 Reader
+     */
     private final PluginConfig readerConfig;
 
     /**
@@ -37,6 +45,10 @@ public class ReaderWorker implements Callable<Integer> {
     @Override
     public Integer call() throws Exception {
         Thread.currentThread().setContextClassLoader(reader.getClass().getClassLoader());
+
+        /**
+         * 执行任务前，设置该子任务的 readerConfig
+         */
         reader.prepare(context, readerConfig);
 
         /**
