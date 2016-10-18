@@ -130,7 +130,7 @@ public class HBaseSplitter extends Splitter {
 						for (int i = 0, len = startKeys.length; i < len; i++) {
 							/**
 							 * Bytes.compareTo 方法返回值解释： 0 if equal, < 0 if left is less than right, etc.
-                             * 如果当前 region 的 endKeys 大于抽数任务的 startRowkey，说明该 region 至少有部分（也可能是整个 region）数据需要被抽取
+                             * 如果当前 region 的 endKeys 大于抽数任务的 startRowkey，说明该 region 有部分（也可能是整个 region）数据需要被抽取
 							 */
 							if (Bytes.compareTo(endKeys[i], startRowkeyBytes) >= 0) {
 								Pair<byte[], byte[]> pair = new Pair<>();
@@ -160,7 +160,13 @@ public class HBaseSplitter extends Splitter {
 								break;
 							}
 							/**
-                             * start <= startRowkey < endRowkey <= endKey
+							 * 1、如果当前 region 的 endKey >= startRowkey，说明可能该 region 的部分（也可能是整个 region）数据需要被抽取，否则没有数据，直接进入下一循环
+							 * 2、同时，当前 region 的 startKey 满足 endRowkey >= startKey，说明该 region 的数据范围没有超出任务的抽数范围，至少部分数据需要被抽取
+							 *
+							 *	任务配置必然条件： 	startRowkey >= endRowkey
+							 *	同时，以下三条件成立：	endKey 		>= startRowkey
+							 *						endRowkey 	>= startKey
+							 *	因此推出结果: start <= startRowkey <= endRowkey <= endKey
 							 */
 							else if (Bytes.compareTo(endKeys[i], startRowkeyBytes) >= 0 && Bytes.compareTo(endRowkeyBytes, startKeys[i]) >= 0) {
 								Pair<byte[], byte[]> pair = new Pair<>();
@@ -172,6 +178,9 @@ public class HBaseSplitter extends Splitter {
 					}
 				}
 
+				/**
+				 * 如果并发度 parallelism 大于应该被抽取的 region 个数，则把 parallelism 设置为 region 的个数
+				 */
 				if (parallelism > selectedPairList.size()) {
 					LOGGER.info(
 							"parallelism: {} is greater than the region count: {} in the currently open table: {}, so parallelism is set equal to region count.",
@@ -181,16 +190,33 @@ public class HBaseSplitter extends Splitter {
 
 				/**
 				 * HBase 抽数并行度的切分的关键
-				 * 为什么 selectedPairList.size() 要定义为 double？
 				 */
 				double step = (double) selectedPairList.size() / parallelism;
 				for (int i = 0; i < parallelism; i++) {
 					List<Pair<byte[], byte[]>> splitedPairs = new ArrayList<>();
+
+					/**
+					 * 为 region 按顺序分组
+					 * 从 region 读取出来的 startKey 和 endKey 是有序的吗？
+					 * 如果不是有序的，那这个算法可以用吗？
+					 */
 					for (int start = (int) Math.ceil(step * i), end = (int) Math .ceil(step * (i + 1)); start < end; start++) {
 						splitedPairs.add(selectedPairList.get(start));
 					}
+
+					/**
+					 * 克隆 readerConfig，并设置新的 startRowkey 和 endRowkey
+					 */
 					PluginConfig pluginConfig = (PluginConfig) readerConfig.clone();
+
+					/**
+					 * 取该组 region 的第一 region 的第一列，作为该子任务配置的抽数起始位置
+					 */
 					pluginConfig.put(HBaseReaderProperties.START_ROWKWY, splitedPairs.get(0).getFirst());
+
+					/**
+					 * 取该组 region 的最后 region 的第二列，作为该子任务配置的抽数结束位置
+					 */
 					pluginConfig.put(HBaseReaderProperties.END_ROWKWY, splitedPairs.get(splitedPairs.size() - 1).getSecond());
 					list.add(pluginConfig);
 				}
