@@ -124,6 +124,7 @@ null.string|否|替换当字符串类型的字段值为NULL时的值|
 null.non.string|否|替换当非字符串类型的字段值为NULL时的值|
 field.wrap.replace.string|否|若字符串字段中存在换行符时需要替换的值|
 number.format|否|小数类型字段的输出格式|
+keyword.escaper|否|关键字转义字符，默认为\`|
 
 * hive
 
@@ -239,6 +240,7 @@ password|是|数据库密码|
 table|是|表名（包含数据库名或schema名），如：db.table|
 batch.insert.size|否|批量插入的记录数，默认值：10000|
 schema|否|字段名配置，一般用于writer和reader的字段名不一致时|
+keyword.escaper|否|关键字转义字符，默认为\`|
 
 * hive
 
@@ -332,7 +334,7 @@ Reader     | 并行度切分依据   |
 -----------| ----- |
 jdbc|数值型主键（或配置指定列）的大小范围。默认会根据查询条件查找max(id)和min(id)，然后根据id的区间范围均分，每个线程负责读取其中一份区间的数据|
 hive|文件数量|
-hbase|rowkey区间|
+hbase|region数量|
 hdfs|文件数量|
 mongodb|_id区间|
 ftp|文件数量|

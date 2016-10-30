@@ -39,7 +39,7 @@ public class JDBCSplitter extends Splitter {
 	}
 
 	private List<PluginConfig> buildPluginConfigs(Connection conn, List<String> sqlList, String splitColumn,
-			PluginConfig readerConfig) {
+												  PluginConfig readerConfig) {
 		List<PluginConfig> list = new ArrayList<PluginConfig>();
 		try {
 			int parallelism = readerConfig.getParallelism();
@@ -74,6 +74,7 @@ public class JDBCSplitter extends Splitter {
 	@Override
 	public List<PluginConfig> split(JobConfig jobConfig) {
 		PluginConfig readerConfig = jobConfig.getReaderConfig();
+		String keywordEscaper = readerConfig.getProperty(JDBCReaderProperties.KEYWORD_ESCAPER, "`");
 
 		/**
 		 * 数据库驱动类
@@ -150,7 +151,7 @@ public class JDBCSplitter extends Splitter {
 						conn = JdbcUtils.getConnection(driver, url, username, password);
 						String selectColumns = "`"
 								+ Joiner.on("`, `").join(
-										Utils.getColumns(JdbcUtils.getColumnNames(conn, tableName), excludeColumns))
+								Utils.getColumns(JdbcUtils.getColumnNames(conn, tableName, keywordEscaper), excludeColumns))
 								+ "`";
 						sql.append(selectColumns);
 					} catch (Exception e) {
@@ -199,7 +200,7 @@ public class JDBCSplitter extends Splitter {
 					LOG.info("Attempt to query digital primary key for table: {}", table);
 					conn = JdbcUtils.getConnection(driver, url, username, password);
 					String splitColumn = JdbcUtils.getDigitalPrimaryKey(conn, conn.getCatalog(), null,
-							getFirstTableName(table));
+							getFirstTableName(table), keywordEscaper);
 					if (splitColumn != null) {
 						LOG.info("Table {} find digital primary key: {}", table, splitColumn);
 						return buildPluginConfigs(conn, sqlList, "`" + splitColumn + "`", readerConfig);
@@ -232,7 +233,6 @@ public class JDBCSplitter extends Splitter {
 
 	/**
 	 * 表名是否 符合要求
-	 *
 	 */
 	public static Boolean isMatch(String content) {
 		for (String piece : com.google.common.base.Splitter.on(",").omitEmptyStrings().trimResults().split(content)) {
@@ -246,7 +246,6 @@ public class JDBCSplitter extends Splitter {
 
 	/**
 	 * 内容解析成列表
-	 *
 	 */
 	public static List<String> getRange(String content) {
 		// split to pieces and be unique.
@@ -264,9 +263,8 @@ public class JDBCSplitter extends Splitter {
 
 	/**
 	 * get the range
-	 *
+	 * <p>
 	 * 01-04 = 01,02,03,04
-	 *
 	 */
 	private static List<String> parseRange(String content) {
 		Matcher matcher = PATTERN.matcher(content);
@@ -304,5 +302,4 @@ public class JDBCSplitter extends Splitter {
 	public static String getFirstTableName(String tableName) {
 		return getRange(tableName).get(0);
 	}
-
 }
