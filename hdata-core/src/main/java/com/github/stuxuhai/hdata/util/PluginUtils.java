@@ -65,7 +65,7 @@ public class PluginUtils {
              * 根据插件名称，获取插件及其所有依赖包的绝对路径
              */
             List<URL> list = listFileByPluginName(pluginName);
-            classLoader = new PluginClassLoader(list.toArray(new URL[list.size()]), null);
+            classLoader = new PluginClassLoader(list.toArray(new URL[list.size()]));
             cache.put(pluginName, classLoader);
         }
 

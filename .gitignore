@@ -1,0 +1,17 @@
+target
+/build/
+.idea/
+hdata-api/hdata-api.iml
+hdata-console/hdata-console.iml
+hdata-core/hdata-core.iml
+hdata-csv/hdata-csv.iml
+hdata-excel/hdata-excel.iml
+hdata-ftp/hdata-ftp.iml
+hdata-hbase/hdata-hbase.iml
+hdata-hdfs/hdata-hdfs.iml
+hdata-hive/hdata-hive.iml
+hdata-http/hdata-http.iml
+hdata-jdbc/hdata-jdbc.iml
+hdata-kafka/hdata-kafka.iml
+hdata-mongodb/hdata-mongodb.iml
+hdata.iml

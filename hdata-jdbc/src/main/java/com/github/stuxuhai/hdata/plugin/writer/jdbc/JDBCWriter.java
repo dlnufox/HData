@@ -20,7 +20,7 @@ import com.github.stuxuhai.hdata.api.Record;
 import com.github.stuxuhai.hdata.api.Writer;
 import com.github.stuxuhai.hdata.common.Constants;
 import com.github.stuxuhai.hdata.exception.HDataException;
-import com.github.stuxuhai.hdata.util.JdbcUtils;
+import com.github.stuxuhai.hdata.plugin.jdbc.JdbcUtils;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 
@@ -52,12 +52,12 @@ public class JDBCWriter extends Writer {
         }
 
         String url = writerConfig.getString(JDBCWriterProperties.URL);
-        Preconditions.checkNotNull(url, "HDFS writer required property: url");
+        Preconditions.checkNotNull(url, "JDBC writer required property: url");
 
         String username = writerConfig.getString(JDBCWriterProperties.USERNAME);
         String password = writerConfig.getString(JDBCWriterProperties.PASSWORD);
         String table = writerConfig.getString(JDBCWriterProperties.TABLE);
-        Preconditions.checkNotNull(table, "HDFS writer required property: table");
+        Preconditions.checkNotNull(table, "JDBC writer required property: table");
 
         this.table = table;
         batchInsertSize = writerConfig.getInt(JDBCWriterProperties.BATCH_INSERT_SIZE, DEFAULT_BATCH_INSERT_SIZE);

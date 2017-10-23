@@ -45,7 +45,10 @@ HData框架通过配置读取解析、RingBugffer 缓冲区、线程池封装等
 
 * 编译
 
-执行 *./bin/package-hdata.sh* 命令，执行成功后将会生成压缩包 *./build/hdata.tar.gz* ，然后解压即可。
+执行 mvn clean package -Pmake-package 命令，执行成功后将会生成压缩包 ./build/hdata.tar.gz ，然后解压即可。
+
+编译时也可以夹带自己的配置, 如：mvn clean package -Pcdh5 -Pmake-package
+
 
 * 运行
 
@@ -130,7 +133,7 @@ keyword.escaper|否|关键字转义字符，默认为\`|
 
 参数        | 是否必选   | 描述                    |
 -----------| ----- | ---------------------------------------- |
-metastore.uris|是|Hive Metastore连接地址，如：thrift://localhost:9083|
+metastore.uris|否|Hive Metastore连接地址，如：thrift://localhost:9083, 默认: HiveConf.getVar(ConfVars.METASTOREURIS) 即 `hive-site.xml` 中的 `hive.metastore.uris` |
 database|否|数据库名，默认：default|
 table|是|表名|
 partitions|否|分区，例如: visit_date='2016-07-07'|
@@ -187,6 +190,8 @@ partition.id|否|默认：0|
 start.offset|否|需要消费的起始offset|
 fields.separator|否|字段分隔符，默认\t|
 schema|否|输出的字段定义，如：id,start_ip,end_ip|
+
+其他配置请参考：[Kafka Configuration](https://kafka.apache.org/documentation/#configuration)
 
 * ftp
 
@@ -246,7 +251,7 @@ keyword.escaper|否|关键字转义字符，默认为\`|
 
 参数        | 是否必选   | 描述                    |
 -----------| ----- | ---------------------------------------- |
-metastore.uris|是|Hive Metastore连接地址，如：thrift://localhost:9083|
+metastore.uris|否|Hive Metastore连接地址，如：thrift://localhost:9083, 默认: HiveConf.getVar(ConfVars.METASTOREURIS) 即 `hive-site.xml` 中的 `hive.metastore.uris` |
 database|否|数据库名，默认：default|
 table|是|表名|
 partitions|否|分区条件，如：day='20140418'|
@@ -285,6 +290,8 @@ zookeeper.znode.parent|否|hbase使用的Zookeeper根节点|
 -----------| ----- | ---------------------------------------- |
 topic|是|需要消费的topic|
 fields.separator|否|字段分隔符，默认\t|
+
+其他配置请参考：[Kafka Configuration](https://kafka.apache.org/documentation/#configuration)
 
 * ftp
 

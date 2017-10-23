@@ -10,10 +10,11 @@ import org.apache.logging.log4j.Logger;
 public class PluginClassLoader extends URLClassLoader {
     private static final Logger LOGGER = LogManager.getLogger();
 
-    public PluginClassLoader(URL[] urls, ClassLoader parent) {
-        super(urls, parent);
+    public PluginClassLoader(URL[] urls) {
+        super(urls, PluginClassLoader.class.getClassLoader());
     }
 
+    /*
     @Override
     public Class<?> loadClass(String name) throws ClassNotFoundException {
         ClassLoader cl = getClass().getClassLoader();
@@ -26,5 +27,6 @@ public class PluginClassLoader extends URLClassLoader {
             return super.loadClass(name);
         }
     }
+    */
 
 }
