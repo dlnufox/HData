@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+dir=`pwd`
+
+rm -rf ${dir}/build/*
+
+mvn clean package -Pmake-package
+
+cd ${dir}/build
+
+tar -zxf *.tar.gz
+
+pwd
