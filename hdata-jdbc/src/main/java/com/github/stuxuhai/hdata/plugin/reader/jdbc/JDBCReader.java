@@ -107,6 +107,7 @@ public class JDBCReader extends Reader {
         int rows = 0;
         long startTime = System.currentTimeMillis();
         long endTime = startTime;
+        statement.setFetchSize(Integer.MIN_VALUE);
 
         try {
             ResultSet rs = statement.executeQuery(sql);

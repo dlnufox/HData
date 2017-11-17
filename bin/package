@@ -11,3 +11,7 @@ cd ${dir}/build
 tar -zxf *.tar.gz
 
 pwd
+
+cd ${dir}
+
+mvn clean

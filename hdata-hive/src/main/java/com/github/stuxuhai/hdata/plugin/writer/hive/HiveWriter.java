@@ -104,6 +104,8 @@ public class HiveWriter extends Writer {
 						entity.getPartitionKVs());
 		try {
 			Job job = Job.getInstance(conf);
+
+			// TODO 使用 Hcatalog
 			HCatOutputFormat.setOutput(job, jobInfo);
 			HCatOutputFormat.setSchema(job, HCatOutputFormat.getTableSchema(job.getConfiguration()));
 

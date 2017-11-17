@@ -31,7 +31,6 @@ public class PluginUtils {
          */
         String path = PluginUtils.class.getProtectionDomain().getCodeSource().getLocation().getPath();
         LOGGER.info("name of core jar:" + path);
-        LOGGER.info("path of core jar" + "/home/xiaochaihu/projects/tools/hdata/lib/hdata-core-0.2.8.jar".replaceAll("/lib/.*\\.jar", ""));
 
         /**
          * 得到对应 reader 对应模块的jar包，及其所依赖的所有包
